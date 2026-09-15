@@ -1,5 +1,9 @@
 # AUTOMATED CAMPUS RESEARCH PROJECT LIFECYCLE MANAGEMENT AND COLLABORATIVE IP FILING DASHBOARD
+## 🌐 Live Website
 
+👉 [Open Campus Research IP Dashboard](https://campus-research-ip-dashboard-2.onrender.com/)
+
+ 
 > **Production Deployment Package & System Demonstration Guide**  
 > A full-stack, enterprise-grade platform designed to streamline academic research project submissions, faculty mentorship reviews, document security, AI originality screening, collaborative invention disclosure drafting, prior-art patent lookups, 10-stage IP filing workflows, institutional analytics, automated notifications, and RBAC user governance.
 
