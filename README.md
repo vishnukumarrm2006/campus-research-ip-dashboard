@@ -1,102 +1,97 @@
-# Automated Campus Research Project Lifecycle Management and Collaborative IP Filing Dashboard
+# AUTOMATED CAMPUS RESEARCH PROJECT LIFECYCLE MANAGEMENT AND COLLABORATIVE IP FILING DASHBOARD
 
-An end-to-end web platform designed for higher education institutions to manage student research projects throughout their lifecycle—from domain selection and faculty mentoring to milestone submission, AI-assisted originality screening, and intellectual property (IP) evaluation & filing tracking.
-
----
-
-## 🚀 Core Features & Lifecycle Flow
-
-1. **Student Project Portal**: Domain-tagged project submission, team member management, structured milestone tracking, and document uploads.
-2. **Faculty Mentoring & Evaluation**: Assigned faculty review project progress, provide structured feedback, approve/reject milestones, and recommend projects for IP evaluation.
-3. **AI-Assisted Originality & Novelty Screening**: Automated preliminary screening engine generating decision-support reports on novelty, overlapping concepts, and potential patentable aspects (with explicit non-legal disclaimers).
-4. **IP Coordinator & Filing Dashboard**: Complete IP evaluation management, review history, document inspection, and institutional status tracking (from `NOT_EVALUATED` to `FILED` / `GRANTED`).
-5. **IP Awareness Center**: Interactive educational hub for students and faculty regarding patents, prior-art search, disclosure, and institutional IP workflows.
-6. **Role-Based Access Control (RBAC)**: Strict permission boundaries for `STUDENT`, `FACULTY`, `IP_COORDINATOR`, and `ADMIN`.
+> **Production Deployment Package & System Demonstration Guide**  
+> A full-stack, enterprise-grade platform designed to streamline academic research project submissions, faculty mentorship reviews, document security, AI originality screening, collaborative invention disclosure drafting, prior-art patent lookups, 10-stage IP filing workflows, institutional analytics, automated notifications, and RBAC user governance.
 
 ---
 
-## 🛠 Tech Stack
+## 🏛️ System Architecture Overview
 
-- **Frontend**: React.js (Vite), Tailwind CSS, React Router DOM, Axios, Lucide React
-- **Backend**: Node.js, Express.js, REST API Architecture
-- **Database**: PostgreSQL (Native `pg` Pool driver)
-- **Security**: JWT Authentication, bcrypt Password Hashing, RBAC Middleware
-
----
-
-## 📁 Directory Structure
-
-```text
-campus-research-ip-dashboard/
-├── backend/                  # Express.js REST API Server
-│   ├── src/
-│   │   ├── config/           # Database & Environment Configuration
-│   │   ├── controllers/      # Route Controllers
-│   │   ├── middleware/       # Auth & RBAC Middlewares
-│   │   ├── models/           # Data Access Layer
-│   │   ├── routes/           # API Routes
-│   │   └── server.js         # Entry Point
-│   ├── .env.example
-│   ├── .env
-│   └── package.json
-├── frontend/                 # React (Vite) Single Page Application
-│   ├── src/
-│   │   ├── api/              # Axios instance & API services
-│   │   ├── assets/           # Static assets & styles
-│   │   ├── components/       # Reusable UI components
-│   │   ├── pages/            # Dashboard & Lifecycle pages
-│   │   ├── App.jsx           # Application Router & Entry
-│   │   └── main.jsx          # DOM rendering entry
-│   ├── .env.example
-│   ├── .env
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-└── README.md
+```
+                          ┌──────────────────────────────────────────────┐
+                          │   Vite + React (Tailwind CSS Glassmorphism)   │
+                          └──────────────────────┬───────────────────────┘
+                                                 │ REST API (Bearer JWT)
+                                                 ▼
+                          ┌──────────────────────────────────────────────┐
+                          │         Node.js / Express API Server         │
+                          └──────────────────────┬───────────────────────┘
+                                                 │
+                                 ┌───────────────┴───────────────┐
+                                 ▼                               ▼
+                 ┌───────────────────────────────┐ ┌───────────────────────────────┐
+                 │ PostgreSQL Database Engine    │ │  In-Memory Mock Database Store │
+                 │ (Production Primary Storage)  │ │ (Automatic Zero-Config Failover│
+                 └───────────────────────────────┘ └───────────────────────────────┘
 ```
 
 ---
 
-## ⚡ Quick Start (Development)
+## 🔑 Test Credentials Matrix
 
-### Prerequisites
-- **Node.js**: v18+ 
-- **npm**: v9+
-- **PostgreSQL**: v14+ (Required starting from Phase 2)
+You can log in as any of the 4 supported campus roles using the following pre-configured credentials:
 
-### 1. Backend Setup
+| Role | Email | Password | Access Privileges |
+| :--- | :--- | :--- | :--- |
+| **STUDENT** | `student1@campus.edu` | `Password123!` | Proposal submission, team management, milestone progress reports, document upload, Invention Disclosure Drafting. |
+| **FACULTY** | `prof.sharma@campus.edu` | `Password123!` | Proposal review & approval, milestone assignment, feedback reviews, AI screening trigger, workload management. |
+| **IP COORDINATOR** | `ip.coordinator@campus.edu` | `Password123!` | Invention disclosure reviews, prior-art lookups, 10-stage patent filing lifecycle updates, patent office submissions. |
+| **ADMIN** | `admin@campus.edu` | `Password123!` | User account provisioning, RBAC role reassignment, account suspension, audit log inspector, institutional analytics export. |
+
+---
+
+## 📦 16-Phase Implementation Roadmap Summary
+
+- **Phase 1**: Project Architecture & Express API Setup (`/api/health`).
+- **Phase 2**: Dual-Mode Database Architecture (PostgreSQL + In-Memory Fallback Engine).
+- **Phase 3**: Authentication & RBAC Subsystem (`JWT`, `bcryptjs`, 4 Role Matrix).
+- **Phase 4**: Domain & Faculty Workload Management (Faculty project capacity limit enforcement).
+- **Phase 5**: Student Proposal Submission & Team Management.
+- **Phase 6**: Faculty Review & Milestone Management Engine.
+- **Phase 7**: Secure Classified Document Management & Stream Authorization.
+- **Phase 8**: AI-Assisted Originality Screening Engine (Mandatory non-legal disclaimer).
+- **Phase 9**: IP Coordinator Module & 10-Stage Patent Filing Lifecycle.
+- **Phase 10**: Prior-Art Literature & Patent Lookup Engine (Google Patents / IEEE / arXiv / PubMed).
+- **Phase 11**: Collaborative Invention Disclosure Drafting Engine (7-section IDF, 100% revenue split validator).
+- **Phase 12**: Institutional Analytics & KPI Dashboard Metrics (CSV/JSON exporter).
+- **Phase 13**: IP Awareness Portal & Knowledge Base (Educational resources & FAQ authoring).
+- **Phase 14**: Automated Notification Center & Audit Trail Inspector.
+- **Phase 15**: Admin User Management & Role Governance Console.
+- **Phase 16**: Final System Integration, Production Deployment & Demonstration Package.
+
+---
+
+## 🚀 Quick-Start Launch Instructions
+
+### 1. Start Backend API Server
 ```bash
 cd backend
 npm install
-npm run dev
+node src/server.js
 ```
-Backend will run at `http://localhost:5000` (Health check endpoint: `http://localhost:5000/api/health`).
+The API server will listen on `http://localhost:5000`.
 
-### 2. Frontend Setup
+### 2. Start Frontend Application
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Frontend will run at `http://localhost:5173`.
+Open `http://localhost:5173` in your browser.
+
+### 3. Run Automated Integration Verification
+```bash
+cd backend
+node src/testPhase16.js
+```
+
+### 4. Build for Production
+```bash
+cd frontend
+cmd /c npm run build
+```
 
 ---
 
-## 📌 Development Roadmap
-
-- [x] **Phase 1**: Project Architecture & Setup
-- [ ] **Phase 2**: Database Architecture & Migrations
-- [ ] **Phase 3**: Authentication & RBAC System
-- [ ] **Phase 4**: Domain & Faculty Management
-- [ ] **Phase 5**: Student Project Management
-- [ ] **Phase 6**: Faculty Review & Milestone Tracking
-- [ ] **Phase 7**: Secure Document Management
-- [ ] **Phase 8**: AI-Assisted Originality Screening Engine
-- [ ] **Phase 9**: IP Coordinator Module & Workflow
-- [ ] **Phase 10**: IP Awareness Center
-- [ ] **Phase 11**: Real-Time Notification Engine
-- [ ] **Phase 12**: Role-Specific Analytics Dashboards
-- [ ] **Phase 13**: System Audit Logging
-- [ ] **Phase 14**: End-to-End Testing & Security Audit
-- [ ] **Phase 15**: Lifecycle Integration & Verification
-- [ ] **Phase 16**: Cloud Deployment Preparation
+## 🛡️ License & Institutional Notice
+Developed for Campus Research & Intellectual Property Management. All rights reserved.

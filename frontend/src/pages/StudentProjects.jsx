@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import DocumentManager from '../components/DocumentManager';
+import AiScreeningReportView from '../components/AiScreeningReportView';
+import InventionDisclosureEditor from '../components/InventionDisclosureEditor';
 import {
   FileText,
   Plus,
@@ -20,7 +23,8 @@ import {
   Info,
   Clock,
   ShieldCheck,
-  Cpu
+  Cpu,
+  Folder
 } from 'lucide-react';
 
 export default function StudentProjects() {
@@ -41,7 +45,8 @@ export default function StudentProjects() {
   // Modals & Drawers
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedProjectDetail, setSelectedProjectDetail] = useState(null);
-  const [showTeamModal, setShowTeamModal] = useState(null); // Project object
+  const [detailTab, setDetailTab] = useState('overview'); // 'overview' | 'documents' | 'ai-screening'
+  const [showTeamModal, setShowTeamModal] = useState(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -130,11 +135,9 @@ export default function StudentProjects() {
 
     try {
       if (formData.id) {
-        // Update Project
         const res = await apiClient.put(`/projects/${formData.id}`, formData);
         setSuccessMsg(res.data.message);
       } else {
-        // Create Project
         const res = await apiClient.post('/projects', formData);
         setSuccessMsg(res.data.message);
       }
@@ -162,6 +165,7 @@ export default function StudentProjects() {
     try {
       const res = await apiClient.get(`/projects/${projectId}`);
       setSelectedProjectDetail(res.data.project);
+      setDetailTab('overview');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load project details.');
     }
@@ -197,26 +201,14 @@ export default function StudentProjects() {
     }
   };
 
-  const handleRemoveTeamMember = async (projectId, studentId) => {
-    try {
-      const res = await apiClient.delete(`/projects/${projectId}/members/${studentId}`);
-      setSuccessMsg(res.data.message);
-      fetchData();
-      if (selectedProjectDetail && selectedProjectDetail.id === projectId) {
-        handleViewProjectDetail(projectId);
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to remove team member.');
-    }
-  };
-
   const statusBadges = {
     DRAFT: 'bg-slate-800 text-slate-300 border-slate-700',
     SUBMITTED: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     UNDER_FACULTY_REVIEW: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     REVISION_REQUESTED: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
     FACULTY_APPROVED: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    RECOMMENDED_FOR_IP_REVIEW: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    RECOMMENDED_FOR_AI_SCREENING: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    AI_SCREENED: 'bg-purple-600/20 text-purple-200 border-purple-500/40',
     APPROVED_FOR_IP_PROCESSING: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
     REJECTED: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
   };
@@ -231,7 +223,7 @@ export default function StudentProjects() {
             <span>Student Research Project Lifecycle</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Submit new project proposals, tag research domains, manage team members, and track faculty review progress.
+            Submit new project proposals, tag research domains, upload classified documents, inspect AI novelty reports, and track review progress.
           </p>
         </div>
 
@@ -306,7 +298,8 @@ export default function StudentProjects() {
             <option value="SUBMITTED">SUBMITTED</option>
             <option value="UNDER_FACULTY_REVIEW">UNDER_FACULTY_REVIEW</option>
             <option value="FACULTY_APPROVED">FACULTY_APPROVED</option>
-            <option value="RECOMMENDED_FOR_IP_REVIEW">RECOMMENDED_FOR_IP_REVIEW</option>
+            <option value="RECOMMENDED_FOR_AI_SCREENING">RECOMMENDED_FOR_AI_SCREENING</option>
+            <option value="AI_SCREENED">AI_SCREENED</option>
             <option value="APPROVED_FOR_IP_PROCESSING">APPROVED_FOR_IP_PROCESSING</option>
           </select>
         </div>
@@ -348,7 +341,7 @@ export default function StudentProjects() {
                       onClick={() => handleViewProjectDetail(proj.id)}
                       className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 text-xs font-semibold transition flex items-center space-x-1"
                     >
-                      <span>View Profile</span>
+                      <span>View Profile & AI Report</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
 
@@ -558,10 +551,10 @@ export default function StudentProjects() {
         </div>
       )}
 
-      {/* PROJECT DETAILS MODAL */}
+      {/* PROJECT DETAILS & TABS MODAL */}
       {selectedProjectDetail && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="glass-panel max-w-3xl w-full rounded-2xl p-6 space-y-6 border border-slate-800 max-h-[90vh] overflow-y-auto">
+          <div className="glass-panel max-w-4xl w-full rounded-2xl p-6 space-y-6 border border-slate-800 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="space-y-1">
                 <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-semibold">
@@ -574,80 +567,130 @@ export default function StudentProjects() {
               </button>
             </div>
 
-            {/* Overview Tabs */}
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                <div>
-                  <span className="text-slate-400 block">Assigned Faculty Mentor:</span>
-                  <span className="font-bold text-emerald-300 text-sm">
-                    {selectedProjectDetail.assigned_faculty?.full_name || 'Pending Faculty Assignment'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Lifecycle Status:</span>
-                  <span className={`inline-block mt-0.5 px-2.5 py-0.5 rounded text-[10px] font-extrabold border ${statusBadges[selectedProjectDetail.status]}`}>
-                    {selectedProjectDetail.status.replace(/_/g, ' ')}
-                  </span>
-                </div>
-              </div>
+            {/* Profile Tabs Bar */}
+            <div className="flex items-center space-x-2 border-b border-slate-800 pb-2 text-xs">
+              <button
+                onClick={() => setDetailTab('overview')}
+                className={`px-4 py-2 rounded-xl font-semibold transition flex items-center space-x-1.5 ${
+                  detailTab === 'overview' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Technical Specifications</span>
+              </button>
 
-              <div className="space-y-2">
-                <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Abstract</h4>
-                <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
-                  {selectedProjectDetail.abstract}
-                </p>
-              </div>
+              <button
+                onClick={() => setDetailTab('documents')}
+                className={`px-4 py-2 rounded-xl font-semibold transition flex items-center space-x-1.5 ${
+                  detailTab === 'documents' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Folder className="w-3.5 h-3.5" />
+                <span>Classified Documents</span>
+              </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Problem Statement</h4>
-                  <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
-                    {selectedProjectDetail.problem_statement}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Innovation Description</h4>
-                  <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
-                    {selectedProjectDetail.innovation_description || 'N/A'}
-                  </p>
-                </div>
-              </div>
+              <button
+                onClick={() => setDetailTab('ai-screening')}
+                className={`px-4 py-2 rounded-xl font-semibold transition flex items-center space-x-1.5 ${
+                  detailTab === 'ai-screening' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+                <span>AI Novelty Screening</span>
+              </button>
 
-              {/* Team Members List */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Project Team Roster</h4>
-                  {selectedProjectDetail.created_by_student_id === user.id && (
-                    <button
-                      onClick={() => {
-                        setShowTeamModal(selectedProjectDetail);
-                        handleSearchStudents('');
-                      }}
-                      className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      <span>Manage Team Members</span>
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {selectedProjectDetail.team_members?.map((m) => (
-                    <div key={m.student_id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <span className="font-bold text-white block">{m.full_name}</span>
-                        <span className="text-[10px] text-slate-400">{m.roll_number} • {m.department}</span>
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        m.role_in_project === 'LEAD' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-400'
-                      }`}>
-                        {m.role_in_project}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <button
+                onClick={() => setDetailTab('idf-editor')}
+                className={`px-4 py-2 rounded-xl font-semibold transition flex items-center space-x-1.5 ${
+                  detailTab === 'idf-editor' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-purple-300" />
+                <span>Draft Disclosure Form (IDF)</span>
+              </button>
             </div>
+
+            {detailTab === 'documents' ? (
+              <DocumentManager projectId={selectedProjectDetail.id} canUpload={true} />
+            ) : detailTab === 'ai-screening' ? (
+              <AiScreeningReportView projectId={selectedProjectDetail.id} />
+            ) : detailTab === 'idf-editor' ? (
+              <InventionDisclosureEditor projectId={selectedProjectDetail.id} token={localStorage.getItem('token') || ''} userRole={user?.role_name} />
+            ) : (
+              <div className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <div>
+                    <span className="text-slate-400 block">Assigned Faculty Mentor:</span>
+                    <span className="font-bold text-emerald-300 text-sm">
+                      {selectedProjectDetail.assigned_faculty?.full_name || 'Pending Faculty Assignment'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">Lifecycle Status:</span>
+                    <span className={`inline-block mt-0.5 px-2.5 py-0.5 rounded text-[10px] font-extrabold border ${statusBadges[selectedProjectDetail.status]}`}>
+                      {selectedProjectDetail.status.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Abstract</h4>
+                  <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
+                    {selectedProjectDetail.abstract}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Problem Statement</h4>
+                    <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
+                      {selectedProjectDetail.problem_statement}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Innovation Description</h4>
+                    <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800/80">
+                      {selectedProjectDetail.innovation_description || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Team Members List */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px]">Project Team Roster</h4>
+                    {selectedProjectDetail.created_by_student_id === user.id && (
+                      <button
+                        onClick={() => {
+                          setShowTeamModal(selectedProjectDetail);
+                          handleSearchStudents('');
+                        }}
+                        className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Manage Team Members</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedProjectDetail.team_members?.map((m) => (
+                      <div key={m.student_id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-white block">{m.full_name}</span>
+                          <span className="text-[10px] text-slate-400">{m.roll_number} • {m.department}</span>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          m.role_in_project === 'LEAD' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          {m.role_in_project}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

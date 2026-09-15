@@ -216,11 +216,125 @@ const mockStore = {
   ],
 
   ip_awareness_content: [
-    { id: 1, title: 'Understanding Intellectual Property & Patents for College Researchers', category: 'IP_BASICS', content_markdown: '# Intellectual Property Fundamentals...', author_admin_id: 1, is_published: true, created_at: new Date() },
-    { id: 2, title: 'Step-by-Step Institutional Patent Workflow: From Project to Patent Filing', category: 'PATENT_WORKFLOW', content_markdown: '# Campus Patent Filing Workflow...', author_admin_id: 1, is_published: true, created_at: new Date() },
-    { id: 3, title: 'Conducting Effective Prior-Art Searches Before Project Submission', category: 'PRIOR_ART_SEARCH', content_markdown: '# How to Search Prior Art...', author_admin_id: 1, is_published: true, created_at: new Date() },
-    { id: 4, title: 'How to Write a Comprehensive Invention Disclosure Document', category: 'DISCLOSURE_GUIDE', content_markdown: '# Guide to Invention Disclosure...', author_admin_id: 1, is_published: true, created_at: new Date() },
-    { id: 5, title: 'Top 5 Common IP Mistakes Student Innovators Must Avoid', category: 'COMMON_MISTAKES', content_markdown: '# Critical IP Pitfalls...', author_admin_id: 1, is_published: true, created_at: new Date() }
+    {
+      id: 1,
+      title: 'Understanding Intellectual Property & Patents for College Researchers',
+      category: 'IP_BASICS',
+      summary: 'A comprehensive beginner guide explaining patents, copyrights, trade secrets, and institutional IP policy.',
+      content_markdown: '# Intellectual Property Fundamentals\n\nIntellectual Property (IP) protects novel technical inventions, algorithms, designs, and software created by campus researchers.\n\n### Key Pillars of IP:\n1. **Patents**: Protect new utility inventions, hardware designs, and non-obvious algorithms.\n2. **Copyrights**: Protect original software source code, research papers, and datasets.\n3. **Trade Secrets**: Protect confidential lab formulas and un-disclosed methodologies.\n\n### Why Patent Campus Research?\nPatents grant exclusive 20-year rights, preventing unauthorized commercial exploitation while enabling licensing opportunities for student founders.',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 4,
+      created_at: new Date()
+    },
+    {
+      id: 2,
+      title: 'Step-by-Step Institutional Patent Workflow: From Project to Patent Filing',
+      category: 'PATENT_WORKFLOW',
+      summary: 'Learn how student research projects progress from proposal submission to official patent grant.',
+      content_markdown: '# Institutional Campus Patent Filing Workflow\n\n### The 10-Stage Lifecycle:\n1. **Proposal Submission**: Student registers project and team roster.\n2. **Faculty Approval**: Mentor approves proposal & milestone progress.\n3. **AI Screening**: Automated originality screening analyzes prior-art similarity.\n4. **IP Review Recommendation**: Faculty recommends disclosure for IP review.\n5. **IP Office Evaluation**: IP Coordinator evaluates commercial & patent potential.\n6. **Invention Disclosure (IDF)**: Student co-authors formal 7-section disclosure form.\n7. **Patent Drafting**: Campus patent attorney drafts provisional specification.\n8. **Patent Application Filing**: Official submission to Indian Patent Office / USPTO.\n9. **Publication & Examination**: Official gazette publication and FER examination.\n10. **Patent Grant**: Commercial license issuance & certificate grant.',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 5,
+      created_at: new Date()
+    },
+    {
+      id: 3,
+      title: 'Conducting Effective Prior-Art Searches Before Project Submission',
+      category: 'PRIOR_ART_SEARCH',
+      summary: 'Best practices for searching Google Patents, IEEE Xplore, arXiv, and PubMed before drafting disclosures.',
+      content_markdown: '# Master Prior-Art Searching\n\nPrior art includes all publicly available patents, research papers, conference presentations, and open-source code published anywhere in the world before your filing date.\n\n### Search Strategy Tips:\n- Use specific technology keywords rather than broad domain names.\n- Query both patent databases (Google Patents, IPO, USPTO) and scientific literature (IEEE, arXiv, PubMed).\n- Check non-obvious combination of components.',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 3,
+      created_at: new Date()
+    },
+    {
+      id: 4,
+      title: 'How to Write a Comprehensive Invention Disclosure Document',
+      category: 'DISCLOSURE_GUIDE',
+      summary: 'Detailed walkthrough on filling out the 7 mandatory sections of the campus Invention Disclosure Form (IDF).',
+      content_markdown: '# Guide to Writing Invention Disclosures\n\nThe Invention Disclosure Form (IDF) is the legal foundation of your patent application.\n\n### Mandatory IDF Sections:\n1. **Title & Technical Field**\n2. **Problem Solved**\n3. **Detailed Description**\n4. **Inventive Step (Non-Obviousness)**\n5. **Commercial Utility**\n6. **Prior-Art Comparison**\n7. **Inventor Revenue Sharing Split** (Must total 100%)',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 6,
+      created_at: new Date()
+    },
+    {
+      id: 5,
+      title: 'Top 5 Common IP Mistakes Student Innovators Must Avoid',
+      category: 'COMMON_MISTAKES',
+      summary: 'Critical pitfalls like public disclosure before filing that destroy patentability.',
+      content_markdown: '# 5 Critical IP Pitfalls\n\n1. **Public Disclosure Before Filing**: Publishing a paper or GitHub repository before filing a provisional patent application invalidates novelty worldwide.\n2. **Ignoring Prior Art**: Assuming no one else has built a similar solution without conducting searches.\n3. **Incorrect Co-Inventor Roster**: Omitting student contributors or faculty advisors.\n4. **Unclear Revenue Sharing**: Delaying royalty percentage agreements.\n5. **Failing to Document Lab Notebooks**: Missing date-stamped technical execution evidence.',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 4,
+      created_at: new Date()
+    },
+    {
+      id: 6,
+      title: 'FAQ: Who owns the patent rights for student research projects?',
+      category: 'FAQ',
+      summary: 'Student researchers retain joint inventorship rights with institutional co-ownership according to campus IP policy.',
+      content_markdown: '### Question: Who owns the patent rights for student research projects?\n\n**Answer**: Under campus IP Policy, student researchers are recognized as primary co-inventors. Patent rights are jointly assigned to the Institution and Inventors, with net commercial licensing royalties distributed according to Section 7 of the Invention Disclosure Form (typically 60-70% to student/faculty inventors and 30-40% to the Institutional Research Fund).',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 2,
+      created_at: new Date()
+    },
+    {
+      id: 7,
+      title: 'FAQ: Can I publish a research paper after filing a provisional patent?',
+      category: 'FAQ',
+      summary: 'Yes, once a provisional patent application is officially filed, researchers can freely publish papers.',
+      content_markdown: '### Question: Can I publish a research paper after filing a provisional patent?\n\n**Answer**: Yes! Once your Provisional Patent Application is officially filed with the Patent Office and assigned an Official Application Number, your priority date is secured. You may then submit research papers to journals (IEEE, ACM, Springer) or present at conferences without compromising your patent rights.',
+      author_admin_id: 1,
+      is_published: true,
+      read_time_mins: 2,
+      created_at: new Date()
+    }
+  ],
+
+  saved_prior_art_citations: [
+    {
+      id: 1,
+      project_id: 1,
+      bookmarked_by_user_id: 8,
+      source_platform: 'Google Patents',
+      citation_title: 'Patent US20220198765A1: Autonomous Edge Soil Moisture & Nutrient Telemetry Probe',
+      document_id: 'US20220198765A1',
+      authors_assignees: 'AgriTech Solutions Inc.',
+      publication_year: 2022,
+      similarity_score: 18.5,
+      abstract_snippet: 'An autonomous soil probe comprising multi-frequency conductivity sensors and LoRa mesh telemetry relays.',
+      url: 'https://patents.google.com/patent/US20220198765A1',
+      relevance_notes: 'Prior art in LoRa mesh telemetry, but lacks spectrographic LED analysis.',
+      created_at: new Date(),
+    }
+  ],
+
+  invention_disclosures: [
+    {
+      id: 1,
+      project_id: 1,
+      version: 1,
+      title_field: 'Smart Agricultural Soil Micro-Nutrient Monitoring & Automated Irrigation System using Edge IoT',
+      technical_problem: 'Traditional soil chemistry testing requires manual lab sampling taking 7-14 days. Farmers lack real-time soil NPK data leading to over-fertilization and crop yield loss.',
+      detailed_description: 'An integrated multi-spectral optical probe inserted into agricultural soil. Broad-band LEDs illuminate soil solution extracts, and photodiode sensors measure light absorption across key NPK wavelengths. Data is processed locally on ESP32 microcontrollers using quantized neural networks.',
+      novelty_inventive_step: '1. Direct-insertion optical spectrographic sensor probe operating without wet chemical lab reagents. 2. Edge-computed nutrient decay prediction model coupled to LoRa mesh relay switching.',
+      commercial_utility: 'High commercial viability for precision agriculture equipment manufacturers, commercial farms, and agricultural extension services.',
+      prior_art_differences: 'Unlike Patent US20220198765A1 which relies on electrical conductivity, our invention uses optical spectrographic absorption for direct NPK ion determination.',
+      inventor_splits: [
+        { student_id: 8, name: 'Aarav Kumar', role: 'Lead Student Inventor', percentage: 60 },
+        { student_id: 11, name: 'Ananya Sen', role: 'Co-Student Inventor', percentage: 20 },
+        { faculty_id: 4, name: 'Prof. Alok Sharma', role: 'Faculty Mentor / Co-Inventor', percentage: 20 }
+      ],
+      is_locked: false,
+      locked_by_user_id: null,
+      locked_at: null,
+      updated_at: new Date(),
+      created_at: new Date(),
+    }
   ]
 };
 

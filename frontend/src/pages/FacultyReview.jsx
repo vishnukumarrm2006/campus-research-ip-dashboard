@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import DocumentManager from '../components/DocumentManager';
+import AiScreeningReportView from '../components/AiScreeningReportView';
 import {
   Award,
   CheckCircle2,
@@ -16,7 +18,8 @@ import {
   X,
   ThumbsUp,
   AlertTriangle,
-  FileText
+  FileText,
+  Folder
 } from 'lucide-react';
 
 export default function FacultyReview() {
@@ -28,6 +31,7 @@ export default function FacultyReview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'documents' | 'ai-screening'
 
   // Evaluation Modal State
   const [evaluationMilestone, setEvaluationMilestone] = useState(null);
@@ -62,6 +66,7 @@ export default function FacultyReview() {
       ]);
       setSelectedProject(projRes.data.project);
       setMilestones(msRes.data.milestones || []);
+      setActiveTab('specs');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load project details');
     }
@@ -128,23 +133,23 @@ export default function FacultyReview() {
             <span>Faculty Mentorship & Milestone Evaluation Console</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Review student project specifications, evaluate milestone progress, provide feedback, request revisions, and recommend for AI Originality Screening.
+            Review student project specifications, inspect classified documents, evaluate milestone progress, inspect AI originality reports, and recommend for AI Screening.
           </p>
         </div>
 
         {selectedProject && (
           <button
             onClick={handleRecommendForAi}
-            disabled={selectedProject.status === 'RECOMMENDED_FOR_AI_SCREENING'}
+            disabled={selectedProject.status === 'RECOMMENDED_FOR_AI_SCREENING' || selectedProject.status === 'AI_SCREENED'}
             className={`px-5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center space-x-2 shadow-lg ${
-              selectedProject.status === 'RECOMMENDED_FOR_AI_SCREENING'
+              ['RECOMMENDED_FOR_AI_SCREENING', 'AI_SCREENED'].includes(selectedProject.status)
                 ? 'bg-purple-950 border border-purple-500/30 text-purple-300 opacity-80 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white shadow-purple-600/30'
             }`}
           >
             <Sparkles className="w-4 h-4" />
             <span>
-              {selectedProject.status === 'RECOMMENDED_FOR_AI_SCREENING'
+              {['RECOMMENDED_FOR_AI_SCREENING', 'AI_SCREENED'].includes(selectedProject.status)
                 ? 'Recommended for AI Screening'
                 : 'Recommend for AI Originality Screening'}
             </span>
@@ -227,135 +232,177 @@ export default function FacultyReview() {
         {selectedProject ? (
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Project Technical Proposal Card */}
-            <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
-              <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
-                    {selectedProject.domain?.name}
-                  </span>
-                  <h3 className="text-xl font-bold text-white">{selectedProject.title}</h3>
-                </div>
-                <span className="text-xs font-mono text-slate-400">ID #{selectedProject.id}</span>
-              </div>
+            {/* View Tabs */}
+            <div className="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs w-fit">
+              <button
+                onClick={() => setActiveTab('specs')}
+                className={`px-4 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeTab === 'specs' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Proposal & Milestones</span>
+              </button>
 
-              <div className="space-y-3 text-xs">
-                <div>
-                  <h4 className="font-bold text-emerald-400 mb-1">Abstract Summary:</h4>
-                  <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    {selectedProject.abstract}
-                  </p>
-                </div>
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`px-4 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeTab === 'documents' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Folder className="w-3.5 h-3.5" />
+                <span>Classified Documents</span>
+              </button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <h4 className="font-bold text-emerald-400 mb-1">Problem Statement:</h4>
-                    <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
-                      {selectedProject.problem_statement}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-emerald-400 mb-1">Innovation Description:</h4>
-                    <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
-                      {selectedProject.innovation_description || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between pt-2 text-[11px] text-slate-400 border-t border-slate-800">
-                  <span>Student Lead: <strong className="text-white">{selectedProject.creator?.full_name}</strong></span>
-                  <span>Technologies: <strong className="text-indigo-300">{selectedProject.technologies}</strong></span>
-                </div>
-              </div>
+              <button
+                onClick={() => setActiveTab('ai-screening')}
+                className={`px-4 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeTab === 'ai-screening' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+                <span>AI Novelty Screening</span>
+              </button>
             </div>
 
-            {/* Interactive Visual Milestone Timeline & Evaluation */}
-            <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center space-x-2">
-                  <FileCheck className="w-5 h-5 text-emerald-400" />
-                  <span>Project Milestone Timeline & Progress Submissions</span>
-                </h3>
-                <span className="text-xs text-slate-400 font-mono">{milestones.length} Milestones</span>
+            {activeTab === 'documents' ? (
+              <div className="glass-panel rounded-2xl p-6 border border-slate-800">
+                <DocumentManager projectId={selectedProject.id} canUpload={true} />
               </div>
+            ) : activeTab === 'ai-screening' ? (
+              <div className="glass-panel rounded-2xl p-6 border border-slate-800">
+                <AiScreeningReportView projectId={selectedProject.id} />
+              </div>
+            ) : (
+              <>
+                {/* Project Technical Proposal Card */}
+                <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+                  <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+                        {selectedProject.domain?.name}
+                      </span>
+                      <h3 className="text-xl font-bold text-white">{selectedProject.title}</h3>
+                    </div>
+                    <span className="text-xs font-mono text-slate-400">ID #{selectedProject.id}</span>
+                  </div>
 
-              <div className="space-y-6 relative before:absolute before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-800">
-                {milestones.map((ms, index) => {
-                  const hasSubmissions = ms.submissions && ms.submissions.length > 0;
-                  const latestSubmission = hasSubmissions ? ms.submissions[ms.submissions.length - 1] : null;
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <h4 className="font-bold text-emerald-400 mb-1">Abstract Summary:</h4>
+                      <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
+                        {selectedProject.abstract}
+                      </p>
+                    </div>
 
-                  return (
-                    <div key={ms.id} className="relative pl-10 space-y-3">
-                      {/* Timeline Dot */}
-                      <div className={`absolute left-2.5 top-1.5 -translate-x-1/2 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                        ms.status === 'APPROVED' ? 'bg-emerald-500 border-emerald-400 shadow-md shadow-emerald-500/50' :
-                        ms.status === 'SUBMITTED' ? 'bg-amber-500 border-amber-400 animate-pulse' :
-                        ms.status === 'REVISION_REQUIRED' ? 'bg-rose-500 border-rose-400' : 'bg-slate-900 border-slate-700'
-                      }`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <h4 className="font-bold text-emerald-400 mb-1">Problem Statement:</h4>
+                        <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
+                          {selectedProject.problem_statement}
+                        </p>
                       </div>
-
-                      <div className="glass-card rounded-xl p-5 border border-slate-800 space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-3">
-                          <div>
-                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
-                              Milestone Sequence #{ms.sequence_order}
-                            </span>
-                            <h4 className="text-sm font-bold text-white">{ms.title}</h4>
-                          </div>
-
-                          <div className="flex items-center space-x-3">
-                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${statusBadges[ms.status]}`}>
-                              {ms.status.replace(/_/g, ' ')}
-                            </span>
-
-                            <button
-                              onClick={() => handleOpenEvaluationModal(ms)}
-                              className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition flex items-center space-x-1"
-                            >
-                              <MessageSquare className="w-3.5 h-3.5" />
-                              <span>Evaluate</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-slate-400 leading-snug">{ms.description}</p>
-
-                        {/* Latest Student Submission Box */}
-                        {latestSubmission && (
-                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
-                            <div className="flex items-center justify-between text-[10px] text-indigo-300 font-bold">
-                              <span>Student Submission Text ({latestSubmission.student_name}):</span>
-                              <span>{new Date(latestSubmission.submitted_at).toLocaleString()}</span>
-                            </div>
-                            <p className="text-slate-200 font-mono leading-relaxed">
-                              "{latestSubmission.submission_text}"
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Faculty Feedback History */}
-                        {ms.feedbacks && ms.feedbacks.length > 0 && (
-                          <div className="space-y-1.5 pt-1 text-xs">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">Faculty Evaluation History:</span>
-                            {ms.feedbacks.map((fb, idx) => (
-                              <div key={idx} className="p-2.5 rounded bg-slate-900/80 border border-slate-800 flex items-start space-x-2">
-                                <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                                <div>
-                                  <span className="font-bold text-slate-200 block">
-                                    {fb.faculty_name} ({fb.status_action}):
-                                  </span>
-                                  <span className="text-slate-400">{fb.feedback_text}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <div>
+                        <h4 className="font-bold text-emerald-400 mb-1">Innovation Description:</h4>
+                        <p className="text-slate-300 leading-relaxed p-3 rounded-xl bg-slate-900 border border-slate-800">
+                          {selectedProject.innovation_description || 'N/A'}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+
+                    <div className="flex flex-wrap items-center justify-between pt-2 text-[11px] text-slate-400 border-t border-slate-800">
+                      <span>Student Lead: <strong className="text-white">{selectedProject.creator?.full_name}</strong></span>
+                      <span>Technologies: <strong className="text-indigo-300">{selectedProject.technologies}</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Interactive Visual Milestone Timeline & Evaluation */}
+                <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                      <FileCheck className="w-5 h-5 text-emerald-400" />
+                      <span>Project Milestone Timeline & Progress Submissions</span>
+                    </h3>
+                    <span className="text-xs text-slate-400 font-mono">{milestones.length} Milestones</span>
+                  </div>
+
+                  <div className="space-y-6 relative before:absolute before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-800">
+                    {milestones.map((ms, index) => {
+                      const hasSubmissions = ms.submissions && ms.submissions.length > 0;
+                      const latestSubmission = hasSubmissions ? ms.submissions[ms.submissions.length - 1] : null;
+
+                      return (
+                        <div key={ms.id} className="relative pl-10 space-y-3">
+                          <div className={`absolute left-2.5 top-1.5 -translate-x-1/2 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            ms.status === 'APPROVED' ? 'bg-emerald-500 border-emerald-400 shadow-md shadow-emerald-500/50' :
+                            ms.status === 'SUBMITTED' ? 'bg-amber-500 border-amber-400 animate-pulse' :
+                            ms.status === 'REVISION_REQUIRED' ? 'bg-rose-500 border-rose-400' : 'bg-slate-900 border-slate-700'
+                          }`}>
+                          </div>
+
+                          <div className="glass-card rounded-xl p-5 border border-slate-800 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-3">
+                              <div>
+                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+                                  Milestone Sequence #{ms.sequence_order}
+                                </span>
+                                <h4 className="text-sm font-bold text-white">{ms.title}</h4>
+                              </div>
+
+                              <div className="flex items-center space-x-3">
+                                <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${statusBadges[ms.status]}`}>
+                                  {ms.status.replace(/_/g, ' ')}
+                                </span>
+
+                                <button
+                                  onClick={() => handleOpenEvaluationModal(ms)}
+                                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition flex items-center space-x-1"
+                                >
+                                  <MessageSquare className="w-3.5 h-3.5" />
+                                  <span>Evaluate</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-slate-400 leading-snug">{ms.description}</p>
+
+                            {latestSubmission && (
+                              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                                <div className="flex items-center justify-between text-[10px] text-indigo-300 font-bold">
+                                  <span>Student Submission Text ({latestSubmission.student_name}):</span>
+                                  <span>{new Date(latestSubmission.submitted_at).toLocaleString()}</span>
+                                </div>
+                                <p className="text-slate-200 font-mono leading-relaxed">
+                                  "{latestSubmission.submission_text}"
+                                </p>
+                              </div>
+                            )}
+
+                            {ms.feedbacks && ms.feedbacks.length > 0 && (
+                              <div className="space-y-1.5 pt-1 text-xs">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Faculty Evaluation History:</span>
+                                {ms.feedbacks.map((fb, idx) => (
+                                  <div key={idx} className="p-2.5 rounded bg-slate-900/80 border border-slate-800 flex items-start space-x-2">
+                                    <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                                    <div>
+                                      <span className="font-bold text-slate-200 block">
+                                        {fb.faculty_name} ({fb.status_action}):
+                                      </span>
+                                      <span className="text-slate-400">{fb.feedback_text}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
           </div>
         ) : (

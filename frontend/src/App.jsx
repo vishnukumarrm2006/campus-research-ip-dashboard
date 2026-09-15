@@ -5,6 +5,13 @@ import Login from './pages/Login';
 import DomainFacultyManagement from './pages/DomainFacultyManagement';
 import StudentProjects from './pages/StudentProjects';
 import FacultyReview from './pages/FacultyReview';
+import IpWorkflowManager from './components/IpWorkflowManager';
+import PriorArtSearchTool from './components/PriorArtSearchTool';
+import InstitutionalAnalyticsDashboard from './components/InstitutionalAnalyticsDashboard';
+import IpAwarenessPortal from './components/IpAwarenessPortal';
+import NotificationCenter from './components/NotificationCenter';
+import AuditTrailInspector from './components/AuditTrailInspector';
+import UserRoleGovernancePanel from './components/UserRoleGovernancePanel';
 import {
   Sparkles,
   RefreshCw,
@@ -21,13 +28,28 @@ import {
   Code2,
   Layers,
   LayoutDashboard,
-  FileText
+  FileText,
+  Search,
+  BarChart3,
+  BookOpen,
+  UserPlus
 } from 'lucide-react';
 
 function MainAppContent() {
   const { user, isAuthenticated, logout, login } = useAuth();
-  const [activeView, setActiveView] = useState('projects'); // 'projects' | 'faculty-review' | 'domain-faculty' | 'overview'
+  const [activeView, setActiveView] = useState('projects'); // 'projects' | 'faculty-review' | 'ip-workflow' | 'prior-art' | 'analytics' | 'ip-awareness' | 'domain-faculty' | 'admin-governance' | 'overview'
   const [healthData, setHealthData] = useState(null);
+
+  // Auto switch default view based on user role upon login
+  useEffect(() => {
+    if (user?.role_name === 'IP_COORDINATOR') {
+      setActiveView('ip-workflow');
+    } else if (user?.role_name === 'FACULTY') {
+      setActiveView('faculty-review');
+    } else if (user?.role_name === 'ADMIN') {
+      setActiveView('admin-governance');
+    }
+  }, [user?.role_name]);
 
   // RBAC Test Endpoint State
   const [testResult, setTestResult] = useState(null);
@@ -95,7 +117,7 @@ function MainAppContent() {
                 <h1 className="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
                   Campus Research & IP Filing Dashboard
                 </h1>
-                <p className="text-xs text-slate-400">Phase 6: Faculty Review & Milestones Active</p>
+                <p className="text-xs text-amber-400 font-medium">Phase 15: Admin User Management & Role Governance</p>
               </div>
             </div>
 
@@ -118,8 +140,60 @@ function MainAppContent() {
                 }`}
               >
                 <Award className="w-3.5 h-3.5" />
-                <span>Faculty Review & Milestones</span>
+                <span>Faculty Review</span>
               </button>
+
+              <button
+                onClick={() => setActiveView('ip-workflow')}
+                className={`px-3.5 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeView === 'ip-workflow' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-300" />
+                <span>IP Coordinator Desk</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('prior-art')}
+                className={`px-3.5 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeView === 'prior-art' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Search className="w-3.5 h-3.5 text-indigo-300" />
+                <span>Prior-Art Search</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('analytics')}
+                className={`px-3.5 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeView === 'analytics' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5 text-indigo-300" />
+                <span>Analytics & Reports</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('ip-awareness')}
+                className={`px-3.5 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                  activeView === 'ip-awareness' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-purple-300" />
+                <span>IP Awareness Hub</span>
+              </button>
+
+              {user?.role_name === 'ADMIN' && (
+                <button
+                  onClick={() => setActiveView('admin-governance')}
+                  className={`px-3.5 py-2 rounded-lg font-semibold transition flex items-center space-x-1.5 ${
+                    activeView === 'admin-governance' ? 'bg-amber-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Admin Governance</span>
+                </button>
+              )}
               
               <button
                 onClick={() => setActiveView('domain-faculty')}
@@ -144,7 +218,9 @@ function MainAppContent() {
           </div>
 
           {/* User Profile Bar */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <NotificationCenter token={user?.token || localStorage.getItem('token') || ''} />
+
             <div className="flex items-center space-x-3 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
               <UserCheck className="w-4 h-4 text-emerald-400" />
               <div className="text-left">
@@ -175,8 +251,18 @@ function MainAppContent() {
           <StudentProjects />
         ) : activeView === 'faculty-review' ? (
           <FacultyReview />
+        ) : activeView === 'ip-workflow' ? (
+          <IpWorkflowManager token={user?.token || localStorage.getItem('token') || ''} user={user} />
+        ) : activeView === 'prior-art' ? (
+          <PriorArtSearchTool token={user?.token || localStorage.getItem('token') || ''} user={user} />
+        ) : activeView === 'analytics' ? (
+          <InstitutionalAnalyticsDashboard token={user?.token || localStorage.getItem('token') || ''} user={user} />
+        ) : activeView === 'ip-awareness' ? (
+          <IpAwarenessPortal token={user?.token || localStorage.getItem('token') || ''} user={user} />
         ) : activeView === 'domain-faculty' ? (
           <DomainFacultyManagement />
+        ) : activeView === 'admin-governance' ? (
+          <UserRoleGovernancePanel token={user?.token || localStorage.getItem('token') || ''} currentUser={user} />
         ) : (
           <>
             {/* Phase 6 Status Banner */}
@@ -341,6 +427,11 @@ function MainAppContent() {
                 </div>
               )}
             </section>
+
+            {/* Admin Audit Trail Inspector */}
+            {user?.role_name === 'ADMIN' && (
+              <AuditTrailInspector token={user?.token || localStorage.getItem('token') || ''} />
+            )}
           </>
         )}
 
