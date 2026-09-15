@@ -7,17 +7,19 @@ let pgPool = null;
 
 // Initialize PostgreSQL Pool
 try {
-  pgPool = new Pool({
-    host: config.db.host,
-    port: config.db.port,
-    user: config.db.user,
-    password: config.db.password,
-    database: config.db.database,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 3000,
-  });
-
+ pgPool = new Pool({
+  host: config.db.host,
+  port: config.db.port,
+  user: config.db.user,
+  password: config.db.password,
+  database: config.db.database,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
   pgPool.on('error', (err) => {
     console.error('PostgreSQL idle client error:', err.message);
   });
